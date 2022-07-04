@@ -11,21 +11,6 @@ import yt_dlp
 import os
 
 
-"""
-ytdl_format_options = {
-    'format': 'bestaudio/best',
-    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
-    'restrictfilenames': True,
-    'noplaylist': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'quiet': True,
-    'no_warnings': True,
-    'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
-}
-"""
 
 bot = commands.Bot(command_prefix='$')
 
@@ -57,28 +42,18 @@ async def play(ctx, *, url):
     bot_voice = discord.VoiceClient(bot, channel)
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
 
-    URLS = [url]
     ydl_opts = {
-        'format': 'm4a/bestaudio/best',
-        """
-        'playliststart': True,
-        'playlistend': True,
-        'playlist_items': True,
-        'playlistreverse': True,
-        'playlistrandom': True,
-        'matchtitle': True,
-        'skip_download': True,
-        'break_on_reject': True,
-        'quiet': True,
-        'prefer_free_formats': True,
-        'allow_multiple_video_streams': True,
-        'allow_multiple_audio_streams': True,
-        'check_formats': True,
-        'write_all_thumbnails': True,
-        # bind to ipv4 since ipv6 addresses cause issues sometimes
-        'source_address': '0.0.0.0',
-        'listformats': True,
-        """
+    'format': 'bestaudio/best',
+    'outtmpl': 'downloads/%(extractor)s-%(id)s-%(title)s.%(ext)s',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0',  # ipv6 addresses cause issues sometimes
         # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
         'postprocessors': [{  # Extract audio using ffmpeg
             'key': 'FFmpegExtractAudio',
@@ -93,28 +68,12 @@ async def play(ctx, *, url):
 
     song_queue = []
 
-    """
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        error_code = ydl.download(URLS)
-    for file in os.listdir("./"):
-        if file.endswith(".m4a"):
-            os.rename(file, "current.m4a")
-    voice.play(discord.FFmpegPCMAudio("current.m4a"))
-    """
-    """
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(URLS, download=False)
-        URL = info['formats'][0]['url']
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-"""
-    
-    with YoutubeDL(YDL_OPTIONS) as ydl:
+    with YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         I_URL = info['formats'][0]['url']
-    source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
-    voice.play(source)
-    voice.is_playing()
+        source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
+        voice.play(source)
+        voice.is_playing()
     
     """
     if bot is inactive for x amount of time:
