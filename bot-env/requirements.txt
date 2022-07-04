@@ -1,0 +1,2 @@
+python -m venv bot-env
+sorce bot-env/bin/activate

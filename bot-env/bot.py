@@ -6,6 +6,7 @@ import logging
 import asyncio
 import discord
 import youtube_dl
+from youtube_dl import YoutubeDL
 import yt_dlp
 import os
 
@@ -31,8 +32,10 @@ bot = commands.Bot(command_prefix='$')
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+handler = logging.FileHandler(
+    filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter(
+    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
 with open("secrets.txt") as file:
@@ -56,7 +59,6 @@ async def play(ctx, *, url):
     await channel.connect()
     bot_voice = discord.VoiceClient(bot, channel)
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
-
 
     URLS = [url]
     ydl_opts = {
@@ -88,24 +90,30 @@ async def play(ctx, *, url):
         }]
     }
     FFMPEG_OPTIONS = {
-        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 
+        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
         'options': '-vn'
-        }
+    }
 
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    song_queue = []
+    """
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         error_code = ydl.download(URLS)
     for file in os.listdir("./"):
         if file.endswith(".m4a"):
             os.rename(file, "current.m4a")
     voice.play(discord.FFmpegPCMAudio("current.m4a"))
-
-            
-
     """
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(URLS, download=False)
+        URL = info['formats'][0]['url']
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+
+"""
     if bot is inactive for x amount of time:
         disconnect from the authers channel
- 
+
     print("before first while")
     while bot_voice.is_playing():  # Checks if voice is playing
         print("inside first while")
@@ -121,8 +129,7 @@ async def play(ctx, *, url):
             await bot_voice.voice_disconnect()  # if not it disconnects
     await ctx.send("This is the play fucntion")
     """
-    # need a way to take the users url and parse it in here
-
+# need a way to take the users url and parse it in here
 
 
 @bot.command()
@@ -130,7 +137,6 @@ async def stop(ctx):
     await ctx.send("This is the stop function")
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.stop()
-
 
 
 @bot.command()
@@ -142,6 +148,7 @@ async def pause(ctx):
     else:
         await ctx.send("Currently no audio is playing.")
 
+
 @bot.command()
 async def resume(ctx):
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
@@ -149,6 +156,7 @@ async def resume(ctx):
         voice.resume()
     else:
         await ctx.send("The audio is not paused.")
+
 
 @bot.command()
 async def skip(ctx):
@@ -158,6 +166,15 @@ async def skip(ctx):
 @bot.command()
 async def random(ctx):
     await ctx.send("This is the random fucntion")
+
+
+@bot.command()
+async def disconnect(ctx):
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
+    if voice.is_connected():
+        await voice.disconnect()
+    else:
+        await ctx.send("The bot is not connected to a voice channel.")
 
 
 @bot.event

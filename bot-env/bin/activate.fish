@@ -30,7 +30,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/fedora/Programming/discordbot/bot-env"
+set -gx VIRTUAL_ENV "/home/fedora/Programming/music_bot_01/bot-env"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
