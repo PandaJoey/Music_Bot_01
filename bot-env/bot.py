@@ -10,6 +10,7 @@ from youtube_dl import YoutubeDL
 import yt_dlp
 import os
 
+
 """
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -26,16 +27,12 @@ ytdl_format_options = {
 }
 """
 
-
 bot = commands.Bot(command_prefix='$')
-
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
 with open("secrets.txt") as file:
@@ -95,6 +92,7 @@ async def play(ctx, *, url):
     }
 
     song_queue = []
+
     """
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         error_code = ydl.download(URLS)
@@ -103,14 +101,22 @@ async def play(ctx, *, url):
             os.rename(file, "current.m4a")
     voice.play(discord.FFmpegPCMAudio("current.m4a"))
     """
-
+    """
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(URLS, download=False)
         URL = info['formats'][0]['url']
     voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-
 """
+    
+    with YoutubeDL(YDL_OPTIONS) as ydl:
+        info = ydl.extract_info(url, download=False)
+        I_URL = info['formats'][0]['url']
+    source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
+    voice.play(source)
+    voice.is_playing()
+    
+    """
     if bot is inactive for x amount of time:
         disconnect from the authers channel
 

@@ -1,2 +1,4 @@
 python -m venv bot-env
 sorce bot-env/bin/activate
+
+https://stackoverflow.com/questions/66610012/discord-py-streaming-youtube-live-into-voice
